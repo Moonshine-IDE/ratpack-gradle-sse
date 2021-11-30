@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSE Demo</title>
+
+    <script>
+        if(typeof(EventSource) !== "undefined") {
+            var source = new EventSource("dataGrid");
+            source.onmessage = function(event) {
+                console.log("success", event.data);
+                setTableData(event.data);
+            };
+            source.addEventListener('error', function(e) {
+                console.log("error: ", e);
+                if (e.readyState == EventSource.CLOSED) {
+                    console.log("error: Connection was closed.");
+                }
+            }, false);
+        } else {
+            document.getElementById("result").innerHTML = "Sorry, your browser does not support server-sent events...";
+        }
+
+        function setTableData(tableData){
+            var people = JSON.parse(tableData);
+
+            var length = people.length,
+                element = null;
+            var table = document.getElementById("peopleTable");
+            table.innerHTML = "<tr style='background-color: black; color: white;'><td>Username</td><td>Identifier</td><td>First name</td><td>Last name</td></tr>";
+
+            for (var i = 0; i < length; i++) {
+                element = people[i];
+                var row = table.insertRow(i + 1);
+                var cell1  = row.insertCell(0);
+                cell1.innerText = element.username;
+
+                var cell2  = row.insertCell(1);
+                cell2.innerText = element.identifier;
+
+                var cell3  = row.insertCell(2);
+                cell3.innerText = element.firstName;
+
+                var cell4  = row.insertCell(3);
+                cell4.innerText = element.lastName;
+            }
+        }
+    </script>
+</head>
+
+<body>
+<h1>Data source</h1>
+<p>The data is being streamed back to the browser using Server-Sent Events.</p>
+<br />
+<table id="peopleTable" style="border: 1px solid">
+</table>
+
+
+<script>
+    function initilize() {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            setTableData(this.responseText);
+        };
+        xhttp.open("GET", "jsonData");
+        xhttp.send();
+    }
+    initilize();
+</script>
+</body>
+
+</html>

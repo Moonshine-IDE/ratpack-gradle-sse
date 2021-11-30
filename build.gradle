@@ -1,0 +1,31 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath "io.ratpack:ratpack-gradle:1.9.0"
+  }
+}
+
+plugins {
+    id 'java'
+    id 'eclipse'      // allows dependencies to be exported to .classpath
+}
+
+apply plugin: "io.ratpack.ratpack-java"
+apply plugin: "idea"
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+  runtime "org.slf4j:slf4j-simple:1.7.30"
+  implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-csv', version: '2.12.5'
+}
+
+mainClassName = 'RatpackPush'
+
+run {
+  jvmArgs('-Dratpackpush_csv_path=/opt/prominic/.ratpackpush')
+}
