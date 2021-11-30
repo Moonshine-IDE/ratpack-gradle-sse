@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,17 +32,30 @@ public class FileUtilService {
         return path;
     }
 
+    public static Path getResourcePath(String resourceName) throws Exception {
+        return Paths.get(Thread.currentThread().getContextClassLoader().getResource(resourceName).toURI());
+    }
+
     public static long getFileModifiedTime(Path file) throws IOException {
         BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
         return attr.lastModifiedTime().toMillis();
     }
 
+    public static String getDataSourceFileName() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("uuuu-MM-dd-HH-mm");
+        LocalDateTime now = LocalDateTime.now().minusMinutes(1);
+        return "csv_example_data-" + dtf.format(now) + ".csv";
+    }
+
     public static Path getDataSourceFile() {
-        Path dataSourceFile = getExternalCSVPath(DEFAULT_DATA_FILE_NAME);
+        Path dataSourceFile = getExternalCSVPath(getDataSourceFileName());
 
         if ( !Files.exists(dataSourceFile) ) {
-            LOGGER.error("Missing data source file at: " + dataSourceFile.normalize().toString());
-            System.exit(1);
+            dataSourceFile = getExternalCSVPath(DEFAULT_DATA_FILE_NAME);
+            if ( !Files.exists(dataSourceFile) ) {
+                LOGGER.error("Missing data source file at: " + dataSourceFile.normalize().toString());
+                System.exit(1);
+            }
         }
 
         return dataSourceFile;
