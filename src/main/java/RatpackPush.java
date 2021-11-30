@@ -14,6 +14,11 @@ public class RatpackPush {
     RatpackServer.start(server -> server
       .serverConfig(c -> c.baseDir(BaseDir.find()))
       .handlers(chain -> chain
+      	.all( ctx -> {
+          ctx.header("Access-Control-Allow-Origin", "*");
+          ctx.header("Access-Control-Allow-Headers", "*");
+          ctx.next();
+        })
         .files(f -> f.dir("public").indexFiles("index.html"))
         .get("jsonData", ctx -> ctx.render(FileUtilService.getCSVDataFileAsJSONString()))
         .get("dataGrid", ctx -> {
